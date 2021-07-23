@@ -12,32 +12,33 @@ function Square(props) {
 
 class Board extends React.Component {
 
-  renderSquare(i) {
+  renderSquare(i, j) {
     return (
       <Square
-        value={this.props.squares[i]}
-        onClick={() => this.props.onClick(i)}
+        value={this.props.squares[i][j]}
+        onClick={() => this.props.onClick(i, j)}
       />
     );
   }
 
   render() {
+    // MEMO: ここでfor文を利用して作りたいが、やり方がわからない・・・
     return (
       <div>
         <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
+          {this.renderSquare(0, 0)}
+          {this.renderSquare(0, 1)}
+          {this.renderSquare(0, 2)}
         </div>
         <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
+          {this.renderSquare(1, 0)}
+          {this.renderSquare(1, 1)}
+          {this.renderSquare(1, 2)}
         </div>
         <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
+          {this.renderSquare(2, 0)}
+          {this.renderSquare(2, 1)}
+          {this.renderSquare(2, 2)}
         </div>
       </div>
     );
@@ -49,24 +50,28 @@ class Game extends React.Component {
     super(props);
     this.state = {
       history: [{
-        squares: Array(9).fill(null)
+        squares: Array(3).fill().map(() => new Array(3).fill(null)),
+        setRow: null,
+        setCol: null,
       }],
       stepNumber: 0,
       xIsNext: true
     };
   }
 
-  handleClick(i) {
+  handleClick(i, j) {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
-    if (calculateWinner(squares) || squares[i]) {
+    if (calculateWinner(squares) || squares[i][j]) {
       return;
     }
-    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    squares[i][j] = this.state.xIsNext ? 'X' : 'O';
     this.setState({
       history: history.concat([{
         squares: squares,
+        setRow: i,
+        setCol: j,
       }]),
       stepNumber: history.length,
       xIsNext: !this.state.xIsNext,
@@ -87,14 +92,14 @@ class Game extends React.Component {
 
     const moves = history.map((step, move) => {
       const desc = move ? 
-        'Go to move #' + move :
+        'Go to move #' + move + '  (row:' + step.setRow + ', col:' + step.setCol + ')':
         'Go to game start';
       return (
         <li key={move}>
           <button onClick={() => this.jumpTo(move)}>{desc}</button>
         </li>
       )
-  })
+    })
 
     let status;
     if (winner) {
@@ -108,7 +113,7 @@ class Game extends React.Component {
         <div className="game-board">
           <Board
             squares={current.squares}
-            onClick={(i) => this.handleClick(i)}
+            onClick={(i, j) => this.handleClick(i, j)}
           />
         </div>
         <div className="game-info">
@@ -128,21 +133,43 @@ ReactDOM.render(
 );
 
 function calculateWinner(squares) {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+  // 横並び
+  for (let i = 0; i < 3; i++) {
+    if (!squares[i][0]) continue;
+    let isSameMark = true;
+    for (let j = 1; j < 3; j++) {
+      if (squares[i][0] !== squares[i][j]) {
+        isSameMark = false;
+        break;
+      }
+    }
+    if (isSameMark) {
+      return squares[i][0];
     }
   }
+
+  // 縦並び
+  for (let i = 0; i < 3; i++) {
+    if (!squares[0][i]) continue;
+    let isSameMark = true;
+    for (let j = 1; j < 3; j++) {
+      if (squares[0][i] !== squares[j][i]) {
+        isSameMark = false;
+        break;
+      }
+    }
+    if (isSameMark) {
+      return squares[0][i];
+    }
+  }
+
+  // 斜め
+  if (squares[0][0] && squares[0][0] === squares[1][1] && squares[0][0] === squares[2][2]) {
+    return squares[0][0];
+  }
+  if (squares[0][2] && squares[0][2] === squares[1][1] && squares[0][2] === squares[2][0]) {
+    return squares[0][0];
+  }
+
   return null;
 }
