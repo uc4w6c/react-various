@@ -1,43 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-
-function Square(props) {
-  return (
-    <button className="square" onClick={props.onClick}>
-      {props.value}
-    </button>
-  );
-}
-
-class Board extends React.Component {
-
-  renderSquare(i, j) {
-    return (
-      <Square
-        value={this.props.squares[i][j]}
-        onClick={() => this.props.onClick(i, j)}
-      />
-    );
-  }
-
-  render() {
-    let squareRowList = [];
-    for (let i = 0; i < 3; i++) {
-      let squareColList = [];
-      for (let j = 0; j < 3; j++) {
-        squareColList.push(this.renderSquare(i, j));
-      }
-      squareRowList.push(<div className="board-row">{squareColList}</div>);
-    }
-
-    return (
-      <div>
-        {squareRowList}
-      </div>
-    );
-  }
-}
+import Board from './board.js'
+import Info from './info.js'
 
 class Game extends React.Component {
   constructor(props) {
@@ -87,20 +52,6 @@ class Game extends React.Component {
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
 
-    const moves = history.map((step, move) => {
-      const desc = move ? 
-        'Go to move #' + move + '  (row:' + step.setRow + ', col:' + step.setCol + ')':
-        'Go to game start';
-      const buttonClassName = (move === this.state.stepNumber) ? 
-        'current-history-button' :
-        'history-button';
-      return (
-        <li class="history-list" key={move}>
-          <button class={buttonClassName} onClick={() => this.jumpTo(move)}>{desc}</button>
-        </li>
-      )
-    });
-
     let status;
     if (winner) {
       status = 'Winner: ' + winner;
@@ -117,8 +68,12 @@ class Game extends React.Component {
           />
         </div>
         <div className="game-info">
-          <div>{status}</div>
-          <ol>{moves}</ol>
+          <Info
+            status={status}
+            history={history}
+            stepNumber={this.state.stepNumber}
+            onClick={(step) => this.jumpTo(step)}
+          />
         </div>
       </div>
     );
