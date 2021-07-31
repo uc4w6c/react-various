@@ -91,7 +91,7 @@ class Game extends React.Component {
       const desc = move ? 
         'Go to move #' + move + '  (row:' + step.setRow + ', col:' + step.setCol + ')':
         'Go to game start';
-      const buttonClassName = (move == this.state.stepNumber) ? 
+      const buttonClassName = (move === this.state.stepNumber) ? 
         'current-history-button' :
         'history-button';
       return (
