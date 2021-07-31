@@ -48,3 +48,7 @@ outline: none;
 .game-info {
   margin-left: 20px;
 }
+
+.game-info .history-list .current-history-button {
+  font-weight: bold;
+}

@@ -22,24 +22,18 @@ class Board extends React.Component {
   }
 
   render() {
-    // MEMO: ここでfor文を利用して作りたいが、やり方がわからない・・・
+    let squareRowList = [];
+    for (let i = 0; i < 3; i++) {
+      let squareColList = [];
+      for (let j = 0; j < 3; j++) {
+        squareColList.push(this.renderSquare(i, j));
+      }
+      squareRowList.push(<div className="board-row">{squareColList}</div>);
+    }
+
     return (
       <div>
-        <div className="board-row">
-          {this.renderSquare(0, 0)}
-          {this.renderSquare(0, 1)}
-          {this.renderSquare(0, 2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(1, 0)}
-          {this.renderSquare(1, 1)}
-          {this.renderSquare(1, 2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(2, 0)}
-          {this.renderSquare(2, 1)}
-          {this.renderSquare(2, 2)}
-        </div>
+        {squareRowList}
       </div>
     );
   }
@@ -97,9 +91,12 @@ class Game extends React.Component {
       const desc = move ? 
         'Go to move #' + move + '  (row:' + step.setRow + ', col:' + step.setCol + ')':
         'Go to game start';
+      const buttonClassName = (move == this.state.stepNumber) ? 
+        'current-history-button' :
+        'history-button';
       return (
-        <li key={move}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
+        <li class="history-list" key={move}>
+          <button class={buttonClassName} onClick={() => this.jumpTo(move)}>{desc}</button>
         </li>
       )
     });
